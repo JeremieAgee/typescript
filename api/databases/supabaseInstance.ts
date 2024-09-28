@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const axios = require("axios");
 
-export const db = axios.create({
+export const supabaseDB = axios.create({
   baseURL: process.env.SUPABASE_URL + "/rest/v1",
   timeout: 1500,
   headers: {

@@ -1,19 +1,20 @@
 import { Comment } from "./Comment";
+import { PostLike } from "./PostLike";
 export class Post {
 	id: number;
 	content: string;
 	comments: Comment[];
-	likes: number;
+	likes:  PostLike[];
 	constructor(
 		id: number,
 		content: string,
 		comments: Comment[],
-		likes: number
+		likes?: PostLike[]
 	) {
 		this.id = id;
 		this.content = content;
 		this.comments = comments;
-		this.likes = likes;
+		this.likes = likes ?? [];
 	}
 	addComment = async (comment: Comment) => {
 		this.comments.push(comment);
@@ -26,11 +27,11 @@ export class Post {
            this.comments.splice(index, 1);
         }
 	};
-    addlike = () => {
-        this.likes++;
+    addlike = (like: PostLike) => {
+        this.likes.push(like);
     };
     removeLike = () => {
-        this.likes--;
+        
     }
     findComment = (commentId: number) =>{
         const foundComment = this.comments.find((comment: Comment)=>{
