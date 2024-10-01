@@ -3,18 +3,22 @@ import { PostLike } from "./PostLike";
 export class Post {
 	id: number;
 	content: string;
+	userId: number;
 	comments: Comment[];
 	likes:  PostLike[];
 	constructor(
 		content: string,
-		comments?: Comment[],
+		userId: number,
 		id?: number,
+		comments?: Comment[],
 		likes?: PostLike[]
 	) {
 		this.id = id ?? 0;
 		this.content = content;
+		this.userId = userId;
 		this.comments = comments ?? [];
 		this.likes = likes ?? [];
+		
 	}
 	addComment = async (comment: Comment) => {
 		this.comments.push(comment);
