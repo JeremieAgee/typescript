@@ -1,25 +1,29 @@
+import { PostLike } from "./PostLike";
+
 export class Comment {
 	id: number;
 	postId: number;
-	userId: string;
+	userId: number;
 	context: string;
-	likes: number;
-	constructor(id: number, postId: number, userId: string, context: string, likes?: number) {
+	likes?: PostLike[];
+	constructor(id: number, postId: number, userId: number, context: string, likes?: PostLike[]) {
 		this.id = id;
 		this.postId = postId;
 		this.userId = userId;
 		this.context = context;
-		this.likes = likes ?? 0;
+		this.likes = likes ?? [];
 	}
-	updateContext = (userId: string, context: string ) => {
+	updateContext = (userId: number, context: string ) => {
 		if(this.userId === userId){
 			this.context = context;
 		} 
 	}
-	addLike = () => {
-		this.likes++;
+	addLike = (like: PostLike) => {
+		this.likes?.push(like);
 	};
-	removeLike = () => {
-		if(this.likes>0){this.likes--;}
+	removeLike = (likeId: number, userId: number) => {
+		this.likes?.find((like: PostLike)=>{
+			return like.id ===likeId && like.userId === userId;
+		})
 	};
 }

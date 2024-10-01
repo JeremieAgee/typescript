@@ -1,13 +1,13 @@
 export class PostLike {
-	id: number;
+	id?: number;
 	postId: number;
-	userId: string;
+	userId: number;
 	commentId?: number;
 	constructor(
-		id: number,
 		postId: number,
-		userId: string,
-		commentId?: number
+		userId: number,
+		commentId?: number,
+		id?: number
 	) {
 		this.id = id;
 		this.postId = postId;

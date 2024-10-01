@@ -6,14 +6,14 @@ export class Post {
 	comments: Comment[];
 	likes:  PostLike[];
 	constructor(
-		id: number,
 		content: string,
-		comments: Comment[],
+		comments?: Comment[],
+		id?: number,
 		likes?: PostLike[]
 	) {
-		this.id = id;
+		this.id = id ?? 0;
 		this.content = content;
-		this.comments = comments;
+		this.comments = comments ?? [];
 		this.likes = likes ?? [];
 	}
 	addComment = async (comment: Comment) => {
