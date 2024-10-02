@@ -113,18 +113,17 @@ export class SocialSite {
 			throw new Error(`No user with ${userId} id found`);
 		}
 	};
-	
-	findPost = (postId: number)=>{	
-		const foundPost = this.posts.find((post:Post)=>{
-			return post.id === postId
-		}) 
-		if (foundPost){
-			return foundPost
-		} else {
-			throw new Error(`No post with the id of ${postId}`)
-		}
 
-	}
+	findPost = (postId: number) => {
+		const foundPost = this.posts.find((post: Post) => {
+			return post.id === postId;
+		});
+		if (foundPost) {
+			return foundPost;
+		} else {
+			throw new Error(`No post with the id of ${postId}`);
+		}
+	};
 	//API functions for all user routes
 	postUser = async (req: Request, res: Response, next: NextFunction) => {
 		const { username, email } = req.body;
@@ -151,7 +150,7 @@ export class SocialSite {
 
 	getUsers = async (req: Request, res: Response, next: NextFunction) => {
 		res.status(200).json(this.users);
-	}
+	};
 
 	getUserById = async (req: Request, res: Response, next: NextFunction) => {
 		const userId = Number(req.params.id);
@@ -169,9 +168,8 @@ export class SocialSite {
 	//API functions for the Post routes
 	getPostById = (req: Request, res: Response, next: NextFunction) => {
 		const postId = Number(req.params.id);
-		const post =  this.findPost(postId)
+		const post = this.findPost(postId);
 		res.status(200).json(post);
-
 	};
 
 	getPosts = (req: Request, res: Response, next: NextFunction) => {
@@ -185,8 +183,8 @@ export class SocialSite {
 	postPost = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { content, userId } = req.body;
-			if(!userId||!content){
-				res.status(400).json({message: `Missing one or more fields`})
+			if (!userId || !content) {
+				res.status(400).json({ message: `Missing one or more fields` });
 			}
 			const newPost = new Post(content, userId);
 			const postId = await supabaseDB.post("/post", newPost);
@@ -202,13 +200,13 @@ export class SocialSite {
 			const { content, userId } = req.body;
 			const postId = Number(req.params.id);
 			const post = this.findPost(postId);
-			if(!content||!userId||!post){
-				res.status(400).json({message: `Missing one or more fields`})
-			}			
-			if(post.userId===userId){
+			if (!content || !userId || !post) {
+				res.status(400).json({ message: `Missing one or more fields` });
+			}
+			if (post.userId === userId) {
 				const newPost = new Post(content, userId);
 				post.update(newPost);
-				await supabaseDB.put('/post', postId, post)				
+				await supabaseDB.put("/post", postId, post);
 			}
 			res.status(200).json();
 		} catch (err) {
@@ -220,11 +218,10 @@ export class SocialSite {
 			const postId = Number(req.params.id);
 			const { userId } = req.body;
 			const foundPost = this.findPost(postId);
-			if (foundPost&&foundPost.userId === userId){
+			if (foundPost && foundPost.userId === userId) {
 				await supabaseDB.delete("/post", postId);
 				res.status(204).end();
 			}
-
 		} catch (err) {
 			next(err);
 		}
@@ -233,14 +230,50 @@ export class SocialSite {
 	getCommentsForPost = (req: Request, res: Response, next: NextFunction) => {
 		const post = this.findPost(Number(req.params.id));
 		res.status(200).json(post.comments);
-	}
-	postComment = (req: Request, res: Response, next: NextFunction) => {
+	};
+	postComment = async (req: Request, res: Response, next: NextFunction) => {
 		const postId = Number(req.params.id);
 		const post = this.findPost(postId);
-		const {context, userId} = req.body;
+		const { context, userId } = req.body;
+		if (!context || !userId) {
+			res.status(400).json({ message: `Missing one or more fields` });
+		}
 		const newComment = new Comment(postId, userId, context);
-		if(context&&userId&&postId){
-
+		const commentId = await supabaseDB.post("/comment", newComment);
+		newComment.id = commentId;
+		post.addComment(newComment);
+		res.status(201).json(newComment);
+	};
+	putComment = async (req: Request, res: Response, next: NextFunction) => {
+		const commentId = Number(req.params.id);
+		const { postId, context, userId } = req.body;
+		if (!postId || !context || !userId) {
+			res.status(400).json({ message: `One or More fields missing` });
+		}
+		const foundPost = this.findPost(postId);
+		if (foundPost) {
+			const comment = foundPost.findComment(commentId);
+			if (comment) {
+				comment.updateContext(userId, context);
+				await supabaseDB.put("/comment", commentId, comment);
+			}
+			res.status(200).json(comment);
+		}
+	};
+	deleteComment = async (req: Request, res: Response, next: NextFunction) => {
+		const commentId = Number(req.params.id);
+		const { postId, userId } = req.body;
+		if (!postId || !userId) {
+			res.status(400).json({ message: `One or More fields missing` });
+		}
+		const foundPost = this.findPost(postId);
+		if(foundPost){
+			const foundComment = foundPost.findComment(commentId);
+			if(foundComment&& foundComment.userId===userId){
+				foundPost.removeComment(commentId)
+				await supabaseDB.delete('/comment', commentId);
+				res.status(204).end();
+			}
 		}
 	}
 }

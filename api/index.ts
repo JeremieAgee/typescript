@@ -46,11 +46,10 @@ app.post("/users", site.postUser);
 app.put("/users/:id", site.putUser);
 app.delete("/users/:id", site.deleteUser);
 // Comment routes
-app.get("/posts/:id/comments", )
-app.get("/posts/:id/comments/:id", )
-app.post("/posts/:id/comments", );
-app.put("/posts/:id/comments/:id", );
-app.delete("/posts/:id/comments/:id", );
+app.get("/posts/:id/comments", site.getCommentsForPost)
+app.post("/posts/:id/comments", site.postComment);
+app.put("/comments/:id", site.putComment);
+app.delete("/comments/:id", site.deleteComment);
 
 // Generic Error Handling
 app.use(genericError);

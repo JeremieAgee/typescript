@@ -25,19 +25,10 @@ export class Post {
 			this.content = post.content;
 		}
 	}
-	findLike = (likeId: number) =>{
-		const foundLike = this.likes.find((like:PostLike)=>{
-			return like.id === likeId
-		})
-		if(foundLike){
-			return foundLike
-		} else {
-			throw new Error(`No like with this ${likeId} id`)
-		}
-	}
+	
 	addComment = (comment: Comment) => {
 		this.comments.push(comment);
-	};
+	}
 	removeComment = (commentId: number) => {
 		if(this.findComment(commentId)){
            const index = this.comments.findIndex((comment:Comment)=>{
@@ -45,10 +36,10 @@ export class Post {
            });
            this.comments.splice(index, 1);
         }
-	};
+	}
     addlike = (like: PostLike) => {
         this.likes.push(like);
-    };
+    }
     removeLike = (like: PostLike) => {
 		const foundLike = this.findLike(like.id)
 		if(foundLike){
@@ -65,8 +56,16 @@ export class Post {
         })
         if(foundComment){
             return foundComment;
-        } else {
-            return new Error(`No comment found with id of `)
-        }
+        } 
     }
+	findLike = (likeId: number) =>{
+		const foundLike = this.likes.find((like:PostLike)=>{
+			return like.id === likeId
+		})
+		if(foundLike){
+			return foundLike
+		} else {
+			throw new Error(`No like with this ${likeId} id`)
+		}
+	}
 }
