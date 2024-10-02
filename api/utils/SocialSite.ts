@@ -11,18 +11,23 @@ export class SocialSite {
 	comments: Comment[];
 	likes: PostLike[];
 	users: User[];
+	isSet: boolean;
 	constructor () {
 		this.name = "Socially Crypto";
 		this.posts = [];
 		this.comments = [];
 		this.likes = [];
 		this.users = [];
+		this.isSet = false;
 	}
 	/*
 	Set intital values for site splits data into respected locations
 	Then clears the site arrays that are no longer needed as they are duplicated info
 	*/
-	setsite = async () => {
+	setSite = async () => {
+		if(this.isSet){
+			return
+		}
 		const [posts, comments, likes, users] = await Promise.all([
 			this.fetchPosts(),
 			this.fetchComments(),
@@ -43,6 +48,7 @@ export class SocialSite {
 		this.likes = [];
 		this.comments = [];
 		console.log(`Site has been set`);
+		this.isSet=true;
 	};
 	//Fetch initial site data
 	fetchUsers = async () => {

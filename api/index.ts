@@ -11,10 +11,7 @@ import { SocialSite } from "./utils/SocialSite";
 const cors = require("cors");
 
 const site = new SocialSite();
-async function setsite() {
-  await site.setsite();
-}
-setsite();
+
 // create an express application
 const app = express();
 
@@ -63,6 +60,7 @@ app.use(notFound);
 // make the server listen on our port
 app.listen(PORT, () => {
   console.log(`The server is running on http://localhost:${PORT}`);
+  site.setSite();
 });
 
 // export our app for testing
