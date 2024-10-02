@@ -21,7 +21,7 @@ export class SocialSite {
 	}
 	/*
 	Set intital values for site splits data into respected locations
-	then clears the site arrays that are no longer needed as they are duplicated info
+	Then clears the site arrays that are no longer needed as they are duplicated info
 	*/
 	setsite = async () => {
 		const [posts, comments, likes, users] = await Promise.all([
@@ -147,7 +147,7 @@ export class SocialSite {
 			this.users.splice(index, 1, user);
 		}
 	};
-	
+
 	getUsers = async (req: Request, res: Response, next: NextFunction) => {
 		res.status(200).json(this.users);
 	}
@@ -198,7 +198,7 @@ export class SocialSite {
 			const { content, userId} = req.body;
 			const postId = Number(req.params.id);
 			const newPost = new Post(content, userId)
-			const post = this.findPostById(postId);
+			const post = this.findPost(postId);
 			if(post&&post.userId){
 				post.update(newPost)
 			}
@@ -214,4 +214,5 @@ export class SocialSite {
 			next(err);
 		}
 	};
+	//Api comments functions
 }

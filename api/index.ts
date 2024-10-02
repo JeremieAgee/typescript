@@ -33,10 +33,25 @@ app.use(express.json());
 // Define our Routes
 // Home Route
 app.get("/", home);
-
+// Post routes
 app.get("/posts", site.getPosts)
-app.get("/posts/:1", site.getPostById)
-// Error Handling
+app.get("/posts/:id", site.getPostById)
+app.post("/posts", site.postPost);
+app.put("/posts/:id", site.putPost);
+app.delete("/posts/:id", site.deletePost);
+// User routes
+app.get("/users", site.getUsers)
+app.get("/users/:id", site.getUserById)
+app.post("/users", site.postUser);
+app.put("/users/:id", site.putUser);
+app.delete("/users/:id", site.deleteUser);
+// Comment routes
+app.get("/posts/:id/comments", )
+app.get("/posts/:id/comments/:id", )
+app.post("/posts/:id/comments", );
+app.put("/posts/:id/comments/:id", );
+app.delete("/posts/:id/comments/:id", );
+
 // Generic Error Handling
 app.use(genericError);
 
