@@ -19,14 +19,14 @@ const app = express();
 const PORT = process.env.PORT;
 
 // Define our Middleware
-// Use CORS Middleware
+/*
 const corsOptions = {
   origin: process.env.TYPESCRIPT_CLIENT,
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
-
+ Use CORS Middleware
 app.use(cors(corsOptions));
-
+*/
 // Use JSON middleware to parse request bodies
 app.use(express.json());
 
