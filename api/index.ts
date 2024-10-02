@@ -60,7 +60,6 @@ app.use(notFound);
 // make the server listen on our port
 app.listen(PORT, () => {
   console.log(`The server is running on http://localhost:${PORT}`);
-  site.setSite();
 });
 
 // export our app for testing
