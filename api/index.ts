@@ -11,7 +11,10 @@ import { SocialSite } from "./utils/SocialSite";
 const cors = require("cors");
 
 const site = new SocialSite();
-
+async function setsite() {
+  await site.setsite();
+}
+setsite();
 // create an express application
 const app = express();
 

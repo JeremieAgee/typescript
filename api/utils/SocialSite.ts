@@ -11,13 +11,12 @@ export class SocialSite {
 	comments: Comment[];
 	likes: PostLike[];
 	users: User[];
-	constructor() {
+	constructor () {
 		this.name = "Socially Crypto";
 		this.posts = [];
 		this.comments = [];
 		this.likes = [];
 		this.users = [];
-		this.setsite();
 	}
 	/*
 	Set intital values for site splits data into respected locations
