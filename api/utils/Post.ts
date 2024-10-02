@@ -20,10 +20,25 @@ export class Post {
 		this.likes = likes ?? [];
 		
 	}
-	addComment = async (comment: Comment) => {
+	update = (post:Post)=>{
+		if(this.id===post.id){
+			this.content = post.content;
+		}
+	}
+	findLike = (likeId: number) =>{
+		const foundLike = this.likes.find((like:PostLike)=>{
+			return like.id === likeId
+		})
+		if(foundLike){
+			return foundLike
+		} else {
+			throw new Error(`No like with this ${likeId} id`)
+		}
+	}
+	addComment = (comment: Comment) => {
 		this.comments.push(comment);
 	};
-	removeComment = async (commentId: number) => {
+	removeComment = (commentId: number) => {
 		if(this.findComment(commentId)){
            const index = this.comments.findIndex((comment:Comment)=>{
             return (comment.id===commentId);
@@ -34,8 +49,15 @@ export class Post {
     addlike = (like: PostLike) => {
         this.likes.push(like);
     };
-    removeLike = () => {
-        
+    removeLike = (like: PostLike) => {
+		const foundLike = this.findLike(like.id)
+		if(foundLike){
+			const index = this.likes.findIndex((oldlike:PostLike)=>{
+				oldlike.id === foundLike.id
+			})
+			this.likes.splice(index, 1)
+		}
+		
     }
     findComment = (commentId: number) =>{
         const foundComment = this.comments.find((comment: Comment)=>{

@@ -110,6 +110,17 @@ export class SocialSite {
 		);
 		return newLikes;
 	};
+	findPostById = (postId: number)=>{	
+		const foundPost = this.posts.find((post:Post)=>{
+			return post.id === postId
+		}) 
+		if (foundPost){
+			return foundPost
+		} else {
+			throw new Error(`No post with the id of ${postId}`)
+		}
+
+	}
 	//API functions for all user routes
 	postUser = async (req: Request, res: Response, next: NextFunction) => {
 		const { username, email } = req.body;
@@ -132,7 +143,10 @@ export class SocialSite {
 			this.users.splice(index, 1, user);
 		}
 	};
-	getUser = async (req: Request, res: Response, next: NextFunction) => {
+	getUsers = async (req: Request, res: Response, next: NextFunction) => {
+		res.status(200).json(this.users);
+	}
+	getUserById = async (req: Request, res: Response, next: NextFunction) => {
 		const userId = Number(req.params.id);
 		const user = this.findUser(userId);
 		if (user) {
@@ -151,9 +165,7 @@ export class SocialSite {
 	//API functions for the Post routes
 	getPostById = (req: Request, res: Response, next: NextFunction) => {
 		const postId = Number(req.params.id);
-		const post = this.posts.find((post: Post) => {
-			return postId === post.id;
-		});
+		const post =  this.findPostById(postId)
 		if (post) {
 			res.status(200).json(post);
 		} else {
@@ -181,7 +193,13 @@ export class SocialSite {
 	};
 	putPost = (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const { content, userId, postId } = req.body;
+			const { content, userId} = req.body;
+			const postId = Number(req.params.id);
+			const newPost = new Post(content, userId)
+			const post = this.findPostById(postId);
+			if(post&&post.userId){
+				post.update(newPost)
+			}
 		} catch (err) {
 			next(err);
 		}
