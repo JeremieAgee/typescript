@@ -64,10 +64,10 @@ export class SocialSite {
 		const commentData = await supabaseDB.get("/comment");
 		const newComments = commentData.data.map((comment: Comment) => {
 			return new Comment(
-				comment.id,
 				comment.postId,
 				comment.userId,
-				comment.context
+				comment.context,
+				comment.id
 			);
 		});
 		return newComments;
@@ -146,6 +146,7 @@ export class SocialSite {
 			});
 			this.users.splice(index, 1, user);
 		}
+		res.status(204).end();
 	};
 
 	getUsers = async (req: Request, res: Response, next: NextFunction) => {
@@ -161,10 +162,8 @@ export class SocialSite {
 	deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 		const userId = Number(req.params.id);
 		const user = this.findUser(userId);
-		if (user) {
-			await supabaseDB.delete("/users", userId);
-			res.status(203).json();
-		}
+		await supabaseDB.delete("/users", userId);
+		res.status(204).end();
 	};
 
 	//API functions for the Post routes
@@ -182,37 +181,66 @@ export class SocialSite {
 			next(err);
 		}
 	};
+
 	postPost = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { content, userId } = req.body;
+			if(!userId||!content){
+				res.status(400).json({message: `Missing one or more fields`})
+			}
 			const newPost = new Post(content, userId);
 			const postId = await supabaseDB.post("/post", newPost);
 			newPost.id = postId;
 			this.posts.push(newPost);
+			res.status(201).json(newPost);
 		} catch (err) {
 			next(err);
 		}
 	};
-	putPost = (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const { content, userId} = req.body;
-			const postId = Number(req.params.id);
-			const newPost = new Post(content, userId)
-			const post = this.findPost(postId);
-			if(post&&post.userId){
-				post.update(newPost)
-			}
-		} catch (err) {
-			next(err);
-		}
-	};
-	deletePost = (req: Request, res: Response, next: NextFunction) => {
+	putPost = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { content, userId } = req.body;
-			res.status(200).json(this.posts);
+			const postId = Number(req.params.id);
+			const post = this.findPost(postId);
+			if(!content||!userId||!post){
+				res.status(400).json({message: `Missing one or more fields`})
+			}			
+			if(post.userId===userId){
+				const newPost = new Post(content, userId);
+				post.update(newPost);
+				await supabaseDB.put('/post', postId, post)				
+			}
+			res.status(200).json();
+		} catch (err) {
+			next(err);
+		}
+	};
+	deletePost = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const postId = Number(req.params.id);
+			const { userId } = req.body;
+			const foundPost = this.findPost(postId);
+			if (foundPost&&foundPost.userId === userId){
+				await supabaseDB.delete("/post", postId);
+				res.status(204).end();
+			}
+
 		} catch (err) {
 			next(err);
 		}
 	};
 	//Api comments functions
+	getCommentsForPost = (req: Request, res: Response, next: NextFunction) => {
+		const post = this.findPost(Number(req.params.id));
+		res.status(200).json(post.comments);
+	}
+	postComment = (req: Request, res: Response, next: NextFunction) => {
+		const postId = Number(req.params.id);
+		const post = this.findPost(postId);
+		const {context, userId} = req.body;
+		const newComment = new Comment(postId, userId, context);
+		if(context&&userId&&postId){
+
+		}
+	}
 }
