@@ -79,17 +79,8 @@ export class SocialSite {
 		});
 		return newPosts;
 	};
-	//Utilities for finding site objects
-	findUser = (userId: number) => {
-		const user = this.users.find((user: User) => {
-			return userId === user.id;
-		});
-		if (user) {
-			return user;
-		} else {
-			throw new Error(`No user with ${userId} id found`);
-		}
-	};
+
+	//Utilities sorting and dividing for site setup
 	findLikesByPostId = (postId: number) => {
 		const newLikes = this.likes.filter(
 			(like: PostLike) =>
@@ -110,7 +101,20 @@ export class SocialSite {
 		);
 		return newLikes;
 	};
-	findPostById = (postId: number)=>{	
+
+	//Utilities for finding site objects
+	findUser = (userId: number) => {
+		const user = this.users.find((user: User) => {
+			return userId === user.id;
+		});
+		if (user) {
+			return user;
+		} else {
+			throw new Error(`No user with ${userId} id found`);
+		}
+	};
+	
+	findPost = (postId: number)=>{	
 		const foundPost = this.posts.find((post:Post)=>{
 			return post.id === postId
 		}) 
@@ -143,16 +147,17 @@ export class SocialSite {
 			this.users.splice(index, 1, user);
 		}
 	};
+	
 	getUsers = async (req: Request, res: Response, next: NextFunction) => {
 		res.status(200).json(this.users);
 	}
+
 	getUserById = async (req: Request, res: Response, next: NextFunction) => {
 		const userId = Number(req.params.id);
 		const user = this.findUser(userId);
-		if (user) {
-			res.status(200).json(user);
-		}
+		res.status(200).json(user);
 	};
+
 	deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 		const userId = Number(req.params.id);
 		const user = this.findUser(userId);
@@ -165,12 +170,9 @@ export class SocialSite {
 	//API functions for the Post routes
 	getPostById = (req: Request, res: Response, next: NextFunction) => {
 		const postId = Number(req.params.id);
-		const post =  this.findPostById(postId)
-		if (post) {
-			res.status(200).json(post);
-		} else {
-			throw new Error(`No post with ${postId}`);
-		}
+		const post =  this.findPost(postId)
+		res.status(200).json(post);
+
 	};
 
 	getPosts = (req: Request, res: Response, next: NextFunction) => {
