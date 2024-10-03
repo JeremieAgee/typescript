@@ -109,7 +109,7 @@ export class SocialSite {
 	};
 
 	//Utilities for finding site objects
-	findUser = (userId: number) => {
+	findUser = (userId: string) => {
 		const user = this.users.find((user: User) => {
 			return userId === user.id;
 		});
@@ -132,8 +132,8 @@ export class SocialSite {
 	};
 	//API functions for all user routes
 	postUser = async (req: Request, res: Response, next: NextFunction) => {
-		const { username, email } = req.body;
-		const newUser = new User(username, email);
+		const { username, email, uid } = req.body;
+		const newUser = new User(username, email, uid);
 		const userId = await supabaseDB.post("/users", newUser);
 		newUser.id = userId;
 		this.users.push(newUser);
@@ -141,7 +141,7 @@ export class SocialSite {
 	putUser = async (req: Request, res: Response, next: NextFunction) => {
 		const { username, email, id } = req.body;
 		const updatedUser = new User(username, email);
-		const userId = Number(req.params.id);
+		const userId = req.params.id;
 		const user = this.findUser(userId);
 		user.updateUser(updatedUser);
 		if (user && user.id === id) {
@@ -159,13 +159,13 @@ export class SocialSite {
 	};
 
 	getUserById = async (req: Request, res: Response, next: NextFunction) => {
-		const userId = Number(req.params.id);
+		const userId = req.params.id;
 		const user = this.findUser(userId);
 		res.status(200).json(user);
 	};
 
 	deleteUser = async (req: Request, res: Response, next: NextFunction) => {
-		const userId = Number(req.params.id);
+		const userId = req.params.id;
 		const user = this.findUser(userId);
 		await supabaseDB.delete("/users", userId);
 		res.status(204).end();
