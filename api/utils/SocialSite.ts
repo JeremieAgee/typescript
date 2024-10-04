@@ -55,14 +55,14 @@ export class SocialSite {
 	fetchUsers = async () => {
 		const users = await supabaseDB.get("/users");
 		const newUsers = users.data.map((user: User) => {
-			return new User(user.username, user.email, user.id);
+			return new User(user.username, user.email, user.uid);
 		});
 		return newUsers;
 	};
 	fetchLikes = async () => {
 		const likesData = await supabaseDB.get("/postlike");
 		const newLikes = likesData.data.map((like: PostLike) => {
-			return new PostLike(like.postId, like.userId, like.commentId, like.id);
+			return new PostLike(like.postId, like.userUid, like.userId, like.commentId, like.id);
 		});
 		return newLikes;
 	};
@@ -72,6 +72,7 @@ export class SocialSite {
 			return new Comment(
 				comment.postId,
 				comment.userId,
+				comment.userUid,
 				comment.context,
 				comment.id
 			);
@@ -81,7 +82,7 @@ export class SocialSite {
 	fetchPosts = async () => {
 		const postsData = await supabaseDB.get("/post");
 		const newPosts = postsData.data.map((post: Post) => {
-			return new Post(post.content, post.userId, post.id);
+			return new Post(post.content, post.userId, post.userUid, post.id);
 		});
 		return newPosts;
 	};
@@ -109,14 +110,14 @@ export class SocialSite {
 	};
 
 	//Utilities for finding site objects
-	findUser = (userId: string) => {
+	findUser = (uid: string) => {
 		const user = this.users.find((user: User) => {
-			return userId === user.id;
+			return uid === user.uid;
 		});
 		if (user) {
 			return user;
 		} else {
-			throw new Error(`No user with ${userId} id found`);
+			throw new Error(`No user with ${uid} id found`);
 		}
 	};
 
@@ -139,12 +140,12 @@ export class SocialSite {
 		this.users.push(newUser);
 	};
 	putUser = async (req: Request, res: Response, next: NextFunction) => {
-		const { username, email, id } = req.body;
-		const updatedUser = new User(username, email);
-		const userId = req.params.id;
-		const user = this.findUser(userId);
+		const { username, email, uid } = req.body;
+		const updatedUser = new User(username, email, uid);
+		const userId = Number(req.params.id);
+		const user = this.findUser(uid);
 		user.updateUser(updatedUser);
-		if (user && user.id === id) {
+		if (user && user.uid === uid) {
 			await supabaseDB.put("/users", userId, user);
 			const index = this.users.findIndex((user: User) => {
 				user.id === userId;
@@ -188,11 +189,11 @@ export class SocialSite {
 
 	postPost = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const { content, userId } = req.body;
+			const { content, userId, userUid } = req.body;
 			if (!userId || !content) {
 				res.status(400).json({ message: `Missing one or more fields` });
 			}
-			const newPost = new Post(content, userId);
+			const newPost = new Post(content, userId, userUid);
 			const postId = await supabaseDB.post("/post", newPost);
 			newPost.id = postId;
 			this.posts.push(newPost);
@@ -203,14 +204,14 @@ export class SocialSite {
 	};
 	putPost = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const { content, userId } = req.body;
+			const { content, userId, userUid } = req.body;
 			const postId = Number(req.params.id);
 			const post = this.findPost(postId);
 			if (!content || !userId || !post) {
 				res.status(400).json({ message: `Missing one or more fields` });
 			}
 			if (post.userId === userId) {
-				const newPost = new Post(content, userId);
+				const newPost = new Post(content, userId, userUid);
 				post.update(newPost);
 				await supabaseDB.put("/post", postId, post);
 			}
@@ -240,11 +241,11 @@ export class SocialSite {
 	postComment = async (req: Request, res: Response, next: NextFunction) => {
 		const postId = Number(req.params.id);
 		const post = this.findPost(postId);
-		const { context, userId } = req.body;
+		const { context, userId, userUid } = req.body;
 		if (!context || !userId) {
 			res.status(400).json({ message: `Missing one or more fields` });
 		}
-		const newComment = new Comment(postId, userId, context);
+		const newComment = new Comment(postId, userId, userUid, context);
 		const commentId = await supabaseDB.post("/comment", newComment);
 		newComment.id = commentId;
 		post.addComment(newComment);

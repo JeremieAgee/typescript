@@ -4,17 +4,20 @@ export class Post {
 	id: number;
 	content: string;
 	userId: number;
+	userUid: string;
 	comments: Comment[];
 	likes:  PostLike[];
 	constructor(
 		content: string,
 		userId: number,
+		userUid: string,
 		id?: number,
 		comments?: Comment[],
 		likes?: PostLike[]
 	) {
 		this.id = id ?? 0;
 		this.content = content;
+		this.userUid = userUid;
 		this.userId = userId;
 		this.comments = comments ?? [];
 		this.likes = likes ?? [];
