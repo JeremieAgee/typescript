@@ -146,10 +146,10 @@ export class SocialSite {
 		this.users.push(newUser);
 	};
 	putUser = async (req: Request, res: Response, next: NextFunction) => {
-		const { username, email} = req.body;
+		const { username, email } = req.body;
 		const userId = req.params.id;
 		const updatedUser = new User(username, email, userId);
-		
+
 		const user = this.findUser(userId);
 		user.updateUser(updatedUser);
 		if (user && user.uid === userId) {
@@ -195,12 +195,12 @@ export class SocialSite {
 	};
 	getLimitedPosts = async (req: Request, res: Response, next: NextFunction) => {
 		const offset = Number(req.params.offset);
-		const limit = Number(req.params.limit)+offset;
-		if(limit<=this.posts.length){
-		const returnItems = this.posts.slice(offset, limit);
-		 res.status(200).json(returnItems);
+		const limit = Number(req.params.limit) + offset;
+		if (limit <= this.posts.length) {
+			const returnItems = this.posts.slice(offset, limit);
+			res.status(200).json(returnItems);
 		}
-	}
+	};
 	postPost = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { content, userId, userUid } = req.body;
@@ -247,7 +247,6 @@ export class SocialSite {
 			next(err);
 		}
 	};
-	
 	postComment = async (req: Request, res: Response, next: NextFunction) => {
 		const postId = Number(req.params.id);
 		const post = this.findPost(postId);
@@ -293,33 +292,66 @@ export class SocialSite {
 			}
 		}
 	};
-	addLikePost = async (req: Request, res: Response, next: NextFunction)=> {
-		const postId = Number(req.params.id)
-		const foundPost = this.findPost(postId)
+	addLikePost = async (req: Request, res: Response, next: NextFunction) => {
+		const postId = Number(req.params.id);
+		const foundPost = this.findPost(postId);
 		const uid = req.params.uid;
 		const user = this.findUser(uid);
-		if(user&&foundPost){
-		const newLike = new PostLike(postId, uid, user.id);
-		const likeId = await supabaseDB.post('/postlike', newLike);
-		newLike.id = likeId;
-		foundPost.addlike(newLike)
-		res.status(201).json(newLike);
+		if (user && foundPost) {
+			const newLike = new PostLike(postId, uid, user.id);
+			const likeId = await supabaseDB.post("/postlike", newLike);
+			newLike.id = likeId;
+			foundPost.addlike(newLike);
+			res.status(201).json(newLike);
 		}
-	}
-	removeLikePost = async (req: Request, res: Response, next: NextFunction)=> {
-		const postId = Number(req.params.id)
+	};
+	removeLikePost = async (req: Request, res: Response, next: NextFunction) => {
+		const postId = Number(req.params.id);
 		const uid = req.params.uid;
 		const foundPost = this.findPost(postId);
-		if(foundPost&&foundPost.userUid===uid){
+		if (foundPost && foundPost.userUid === uid) {
 			const foundLike = foundPost.findLike(uid);
-			await supabaseDB.delete('/postlike', foundLike.id)
-			res.status(204).end()
+			await supabaseDB.delete("/postlike", foundLike.id);
+			res.status(204).end();
 		}
-	}
-	addLikeComment = async (req: Request, res: Response, next: NextFunction)=> {
-	
-	}
-	removeLikeComment = async (req: Request, res: Response, next: NextFunction)=> {
-	
-	}
+	};
+	addLikeComment = async (req: Request, res: Response, next: NextFunction) => {
+		const postId = Number(req.params.id);
+		const foundPost = this.findPost(postId);
+		const commentId = Number(req.params.commentId);
+		const uid = req.params.uid;
+		const user = this.findUser(uid);
+		if (foundPost && user) {
+			const comment = foundPost.findComment(commentId);
+			if (comment) {
+				const newLike = new PostLike(postId, uid, commentId);
+				const likeId = await supabaseDB.post("/postlike", newLike);
+				newLike.id = likeId;
+				comment.addLike(newLike);
+				res.status(201).json(newLike);
+			}
+		}
+	};
+	removeLikeComment = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) => {
+		const postId = Number(req.params.id);
+		const foundPost = this.findPost(postId);
+		const commentId = Number(req.params.commentId);
+		const uid = req.params.uid;
+		const user = this.findUser(uid);
+		if (foundPost && user) {
+			const comment = foundPost.findComment(commentId);
+			if (comment) {
+				const foundLike = comment.findLike(uid);
+				if (foundLike) {
+					await supabaseDB.delete("/postlike", foundLike.id);
+					comment.removeLike(uid);
+					res.status(204).end();
+				}
+			}
+		}
+	};
 }

@@ -1,3 +1,4 @@
+
 import { PostLike } from "./PostLike";
 
 export class Comment {
@@ -6,7 +7,7 @@ export class Comment {
 	userId: number;
 	userUid: string;
 	context: string;
-	likes?: PostLike[];
+	likes: PostLike[];
 	constructor(
 		postId: number,
 		userId: number,
@@ -27,12 +28,25 @@ export class Comment {
 			this.context = context;
 		}
 	};
+
 	addLike = (like: PostLike) => {
-		this.likes?.push(like);
+		this.likes.push(like);
 	};
-	removeLike = (likeId: number, userUid: string) => {
-		this.likes?.find((like: PostLike) => {
-			return like.id === likeId && like.userUid === userUid;
+	removeLike = (userUid:string)=>{
+		const foundLike = this.findLike(userUid);
+		if(foundLike&&foundLike.userUid === userUid){
+			const i = this.likes.findIndex((like:PostLike)=>{
+				return like.userUid=== userUid;
+			})
+			this.likes.splice(i, 1);
+		}
+	}
+	findLike = (likeUid: string) => {
+		const foundLike = this.likes.find((like: PostLike) => {
+			return like.userUid === likeUid;
 		});
+		if(foundLike){
+			return foundLike
+		}
 	};
 }
