@@ -55,7 +55,7 @@ export class SocialSite {
 	fetchUsers = async () => {
 		const users = await supabaseDB.get("/users");
 		const newUsers = users.data.map((user: User) => {
-			return new User(user.username, user.email, user.uid);
+			return new User(user.username, user.email, user.uid, user.id);
 		});
 		return newUsers;
 	};
@@ -146,15 +146,16 @@ export class SocialSite {
 		this.users.push(newUser);
 	};
 	putUser = async (req: Request, res: Response, next: NextFunction) => {
-		const { username, email, uid } = req.body;
-		const updatedUser = new User(username, email, uid);
-		const userId = Number(req.params.id);
-		const user = this.findUser(uid);
+		const { username, email} = req.body;
+		const userId = req.params.id;
+		const updatedUser = new User(username, email, userId);
+		
+		const user = this.findUser(userId);
 		user.updateUser(updatedUser);
-		if (user && user.uid === uid) {
-			await supabaseDB.put("/users", userId, user);
+		if (user && user.uid === userId) {
+			await supabaseDB.put("/users", user.id, user);
 			const index = this.users.findIndex((user: User) => {
-				user.id === userId;
+				user.uid === userId;
 			});
 			this.users.splice(index, 1, user);
 		}
@@ -174,7 +175,7 @@ export class SocialSite {
 	deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 		const userId = req.params.id;
 		const user = this.findUser(userId);
-		await supabaseDB.delete("/users", userId);
+		await supabaseDB.delete("/users", user.id);
 		res.status(204).end();
 	};
 
@@ -192,7 +193,14 @@ export class SocialSite {
 			next(err);
 		}
 	};
-
+	getLimitedPosts = async (req: Request, res: Response, next: NextFunction) => {
+		const offset = Number(req.params.offset);
+		const limit = Number(req.params.limit)+offset;
+		if(limit<=this.posts.length){
+		const returnItems = this.posts.slice(offset, limit);
+		 res.status(200).json(returnItems);
+		}
+	}
 	postPost = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { content, userId, userUid } = req.body;
@@ -239,11 +247,7 @@ export class SocialSite {
 			next(err);
 		}
 	};
-	//Api comments functions
-	getCommentsForPost = (req: Request, res: Response, next: NextFunction) => {
-		const post = this.findPost(Number(req.params.id));
-		res.status(200).json(post.comments);
-	};
+	
 	postComment = async (req: Request, res: Response, next: NextFunction) => {
 		const postId = Number(req.params.id);
 		const post = this.findPost(postId);
@@ -289,4 +293,33 @@ export class SocialSite {
 			}
 		}
 	};
+	addLikePost = async (req: Request, res: Response, next: NextFunction)=> {
+		const postId = Number(req.params.id)
+		const foundPost = this.findPost(postId)
+		const uid = req.params.uid;
+		const user = this.findUser(uid);
+		if(user&&foundPost){
+		const newLike = new PostLike(postId, uid, user.id);
+		const likeId = await supabaseDB.post('/postlike', newLike);
+		newLike.id = likeId;
+		foundPost.addlike(newLike)
+		res.status(201).json(newLike);
+		}
+	}
+	removeLikePost = async (req: Request, res: Response, next: NextFunction)=> {
+		const postId = Number(req.params.id)
+		const uid = req.params.uid;
+		const foundPost = this.findPost(postId);
+		if(foundPost&&foundPost.userUid===uid){
+			const foundLike = foundPost.findLike(uid);
+			await supabaseDB.delete('/postlike', foundLike.id)
+			res.status(204).end()
+		}
+	}
+	addLikeComment = async (req: Request, res: Response, next: NextFunction)=> {
+	
+	}
+	removeLikeComment = async (req: Request, res: Response, next: NextFunction)=> {
+	
+	}
 }

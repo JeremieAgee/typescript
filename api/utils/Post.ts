@@ -40,10 +40,11 @@ export class Post {
 		}
 	};
 	addlike = (like: PostLike) => {
+		
 		this.likes.push(like);
 	};
 	removeLike = (like: PostLike) => {
-		const foundLike = this.findLike(like.id);
+		const foundLike = this.findLike(like.userUid);
 		if (foundLike) {
 			const index = this.likes.findIndex((oldlike: PostLike) => {
 				oldlike.id === foundLike.id;
@@ -59,14 +60,14 @@ export class Post {
 			return foundComment;
 		}
 	};
-	findLike = (likeId: number) => {
+	findLike = (likeUid: string) => {
 		const foundLike = this.likes.find((like: PostLike) => {
-			return like.id === likeId;
+			return like.userUid === likeUid;
 		});
 		if (foundLike) {
 			return foundLike;
 		} else {
-			throw new Error(`No like with this ${likeId} id`);
+			throw new Error(`No like found`);
 		}
 	};
 }

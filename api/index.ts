@@ -33,23 +33,34 @@ app.use(express.json());
 // Define our Routes
 // Home Route
 app.get("/", home);
+
 // Post routes
 app.get("/posts", site.getPosts);
 app.get("/posts/:id", site.getPostById);
 app.post("/posts", site.postPost);
 app.put("/posts/:id", site.putPost);
 app.delete("/posts/:id", site.deletePost);
+app.get("/posts/:offset/:limit", site.getLimitedPosts);
+
 // User routes
-app.get("/users", site.getUsers);
-app.get("/users/:id", site.getUserById);
 app.post("/users", site.postUser);
 app.put("/users/:id", site.putUser);
 app.delete("/users/:id", site.deleteUser);
+
 // Comment routes
-app.get("/posts/:id/comments", site.getCommentsForPost);
 app.post("/posts/:id/comments", site.postComment);
-app.put("/comments/:id", site.putComment);
-app.delete("/comments/:id", site.deleteComment);
+app.put("/posts/:id/comments/:commentId", site.putComment);
+app.delete("/posts/:id/comments/:commentid", site.deleteComment);
+
+//Like Post routes
+app.post("/posts/:id/like/:uid", site.addLikePost);
+app.delete("/posts/:id/like/:uid", site.removeLikePost);
+
+//Like Comment routes
+app.post("/posts/:id/comments/:commentId/like/:uid", site.addLikeComment);
+app.delete("/posts/:id/comments/:commentId/like/:uid", site.removeLikeComment)
+
+
 
 // Generic Error Handling
 app.use(genericError);
