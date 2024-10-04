@@ -12,7 +12,7 @@ export class SocialSite {
 	likes: PostLike[];
 	users: User[];
 	isSet: boolean;
-	constructor () {
+	constructor() {
 		this.name = "Socially Crypto";
 		this.posts = [];
 		this.comments = [];
@@ -26,8 +26,8 @@ export class SocialSite {
 	Then clears the site arrays that are no longer needed as they are duplicated info
 	*/
 	setSite = async () => {
-		if(this.isSet){
-			return
+		if (this.isSet) {
+			return;
 		}
 		this.isSet = true;
 		const [posts, comments, likes, users] = await Promise.all([
@@ -62,7 +62,13 @@ export class SocialSite {
 	fetchLikes = async () => {
 		const likesData = await supabaseDB.get("/postlike");
 		const newLikes = likesData.data.map((like: PostLike) => {
-			return new PostLike(like.postId, like.userUid, like.userId, like.commentId, like.id);
+			return new PostLike(
+				like.postId,
+				like.userUid,
+				like.userId,
+				like.commentId,
+				like.id
+			);
 		});
 		return newLikes;
 	};
@@ -274,13 +280,13 @@ export class SocialSite {
 			res.status(400).json({ message: `One or More fields missing` });
 		}
 		const foundPost = this.findPost(postId);
-		if(foundPost){
+		if (foundPost) {
 			const foundComment = foundPost.findComment(commentId);
-			if(foundComment&& foundComment.userId===userId){
-				foundPost.removeComment(commentId)
-				await supabaseDB.delete('/comment', commentId);
+			if (foundComment && foundComment.userId === userId) {
+				foundPost.removeComment(commentId);
+				await supabaseDB.delete("/comment", commentId);
 				res.status(204).end();
 			}
 		}
-	}
+	};
 }

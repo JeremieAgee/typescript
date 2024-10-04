@@ -34,19 +34,19 @@ app.use(express.json());
 // Home Route
 app.get("/", home);
 // Post routes
-app.get("/posts", site.getPosts)
-app.get("/posts/:id", site.getPostById)
+app.get("/posts", site.getPosts);
+app.get("/posts/:id", site.getPostById);
 app.post("/posts", site.postPost);
 app.put("/posts/:id", site.putPost);
 app.delete("/posts/:id", site.deletePost);
 // User routes
-app.get("/users", site.getUsers)
-app.get("/users/:id", site.getUserById)
+app.get("/users", site.getUsers);
+app.get("/users/:id", site.getUserById);
 app.post("/users", site.postUser);
 app.put("/users/:id", site.putUser);
 app.delete("/users/:id", site.deleteUser);
 // Comment routes
-app.get("/posts/:id/comments", site.getCommentsForPost)
+app.get("/posts/:id/comments", site.getCommentsForPost);
 app.post("/posts/:id/comments", site.postComment);
 app.put("/comments/:id", site.putComment);
 app.delete("/comments/:id", site.deleteComment);
@@ -59,7 +59,7 @@ app.use(notFound);
 
 // make the server listen on our port
 app.listen(PORT, () => {
-  console.log(`The server is running on http://localhost:${PORT}`);
+	console.log(`The server is running on http://localhost:${PORT}`);
 });
 
 // export our app for testing
